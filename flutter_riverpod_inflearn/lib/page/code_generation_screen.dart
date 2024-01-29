@@ -33,6 +33,44 @@ class CodeGenerationScreen extends ConsumerWidget {
             loading: () => const Center(child: CircularProgressIndicator()),
           ),
           Text('State4: $state4'),
+          Consumer(
+            builder: (context, ref, child) {
+              final state5 = ref.watch(gStateNotifierProvider);
+
+              return Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text('State5: $state5'),
+                  if(child != null) child,
+                ],
+              );
+            },
+            child: Text('hello')
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              ElevatedButton(
+                  onPressed: () {
+                    ref.read(gStateNotifierProvider.notifier).increment();
+                  },
+                  child: Text('increment')),
+              const SizedBox(width: 8),
+              ElevatedButton(
+                  onPressed: () {
+                    ref.read(gStateNotifierProvider.notifier).decrement();
+                  },
+                  child: Text('decrement'))
+            ],
+          ),
+
+          //invalidate(): 유효하지 않게 함
+          ElevatedButton(
+            onPressed: () {
+              ref.invalidate(gStateNotifierProvider);
+            },
+            child: Text('Invalidate'),
+          )
         ],
       ),
     );
