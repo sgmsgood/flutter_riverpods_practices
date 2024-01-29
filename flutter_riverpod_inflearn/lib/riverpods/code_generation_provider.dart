@@ -20,3 +20,8 @@ Future<int> gStateFuture2(GStateFuture2Ref ref) async {
   await Future.delayed(Duration(seconds: 3));
   return 10;
 }
+
+@riverpod
+int gStateMultiply(GStateMultiplyRef ref, {required int number1, required int number2}) {
+  return number1 + number2;
+}
