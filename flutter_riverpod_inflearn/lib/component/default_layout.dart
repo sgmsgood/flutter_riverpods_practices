@@ -21,7 +21,7 @@ class DefaultLayout extends StatelessWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: body,
+        child: SizedBox(width: double.infinity, child: body),
       ),
     );
   }
