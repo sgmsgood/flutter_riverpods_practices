@@ -23,10 +23,11 @@ class DefaultLayout extends StatelessWidget {
       backgroundColor: backgroundColor ?? Colors.white,
       appBar: renderAppBar(),
       bottomNavigationBar: bottomNavigationBar,
-      body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 8.0),
-        child: child,
-      ),
+      body: child,
+      // body: Padding(
+      //   // padding: EdgeInsets.symmetric(horizontal: 8.0),
+      //   child: child,
+      // ),
     );
   }
 

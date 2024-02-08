@@ -1,71 +1,56 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_restaurant_inflearn/common/const/data.dart';
+import 'package:flutter_restaurant_inflearn/common/dio/dio.dart';
 import 'package:flutter_restaurant_inflearn/restaurant/component/restaurant_card.dart';
 import 'package:flutter_restaurant_inflearn/restaurant/model/restaurant_model.dart';
+import 'package:flutter_restaurant_inflearn/restaurant/repository/restaurant_repository.dart';
+import 'package:flutter_restaurant_inflearn/restaurant/view/restaurant_detail_screen.dart';
 
 class RestaurantScreen extends StatelessWidget {
   const RestaurantScreen({super.key});
 
-  Future<List> paginateRestaurant() async {
+  Future<List<RestaurantModel>> paginateRestaurant() async {
     final dio = Dio();
-    // access => 5분
-    final accessToken = await storage.read(key: ACCESS_TOKEN_KEY);
+    dio.interceptors.add(CustomInterceptor(storage: storage));
 
-    final resp = await dio.get(
-      'http://$localIp/restaurant',
-      options: Options(
-        headers: {'authorization': 'Bearer $accessToken'},
-      ),
-    );
+    final resp = await RestaurantRepository(dio, baseUrl: 'http://$localIp/restaurant').paginate();
 
-    return resp.data['data'];
+    return resp.data;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: FutureBuilder<List>(
-            future: paginateRestaurant(),
-            builder: (context, AsyncSnapshot<List> snapshot) {
-              if (!snapshot.hasData) {
-                return Container();
-              }
-
-              return ListView.separated(
-                itemCount: snapshot.data?.length ?? 0,
-                itemBuilder: (_, index) {
-                  final item = snapshot.data![index];
-                  final pItem = RestaurantModel(
-                    id: item['id'],
-                    name: item['name'].toString(),
-                    thumbUrl: item['thumbUrl'],
-                    priceRange: RestaurantPriceRange.values
-                        .firstWhere((e) => e.name == item['priceRange']),
-                    ratings: item['ratings'],
-                    ratingsCount: item['ratingsCount'],
-                    deliveryTime: item['deliveryTime'],
-                    deliveryFee: item['deliveryFee'],
-                    tags: List<String>.from(item['tags']),
-                  );
-
-                  return RestaurantCard(
-                    image: Image.network("http://$localIp/${pItem.thumbUrl}", fit: BoxFit.cover),
-                    name: pItem.name,
-                    tags: pItem.tags,
-                    ratingsCount: pItem.ratingsCount,
-                    deliveryTime: pItem.deliveryTime,
-                    deliveryFee: pItem.deliveryFee,
-                    ratings: pItem.ratings,
-                  );
-                },
-                separatorBuilder: (_, index) => const SizedBox(height: 16),
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: FutureBuilder<List<RestaurantModel>>(
+          future: paginateRestaurant(),
+          builder: (context, AsyncSnapshot<List<RestaurantModel>> snapshot) {
+            if (!snapshot.hasData) {
+              return Center(
+                child: CircularProgressIndicator(),
               );
-            },
-          ),
+            }
+
+            return ListView.separated(
+              itemCount: snapshot.data?.length ?? 0,
+              itemBuilder: (_, index) {
+                final item = snapshot.data![index];
+
+                return GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (_) => RestaurantDetailScreen(id: item.id),
+                        ),
+                      );
+                    },
+                    child: RestaurantCard.fromModel(model: item));
+              },
+              separatorBuilder: (_, index) => const SizedBox(height: 16),
+            );
+          },
         ),
       ),
     );

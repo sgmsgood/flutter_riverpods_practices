@@ -1,8 +1,19 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_restaurant_inflearn/common/utils/data_utils.dart';
+import 'package:flutter_restaurant_inflearn/restaurant/component/restaurant_card.dart';
+import 'package:json_annotation/json_annotation.dart';
+
+import '../../common/const/data.dart';
+
+part 'restaurant_model.g.dart';
+
 enum RestaurantPriceRange { expensive, medium, cheap }
 
+@JsonSerializable()
 class RestaurantModel {
   final String id;
   final String name;
+  @JsonKey(fromJson: DataUtils.pathToUrl)
   final String thumbUrl;
   final List<String> tags;
   final RestaurantPriceRange priceRange;
@@ -22,4 +33,9 @@ class RestaurantModel {
     required this.deliveryTime,
     required this.deliveryFee,
   });
+
+  factory RestaurantModel.fromJson(Map<String, dynamic> json) =>
+      _$RestaurantModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$RestaurantModelToJson(this);
 }
