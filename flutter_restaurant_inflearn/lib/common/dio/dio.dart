@@ -1,6 +1,20 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_restaurant_inflearn/common/const/data.dart';
+import 'package:flutter_restaurant_inflearn/common/secure_storage/secure_storage.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+
+final dioProvider = Provider<Dio>((ref) {
+  final dio = Dio();
+
+  final storage = ref.watch(secureStorageProvider);
+
+  dio.interceptors.add(
+    CustomInterceptor(storage: storage),
+  );
+
+  return dio;
+});
 
 class CustomInterceptor extends Interceptor {
   final FlutterSecureStorage storage;
@@ -9,8 +23,8 @@ class CustomInterceptor extends Interceptor {
 
   // 1. 요청 보낼 때
   @override
-  void onRequest(RequestOptions options,
-      RequestInterceptorHandler handler) async {
+  void onRequest(
+      RequestOptions options, RequestInterceptorHandler handler) async {
     print("[REQ] [${options.method}] ${options.uri}");
     if (options.headers['accessToken'] == 'true') {
       options.headers.remove('accessToken');
@@ -34,10 +48,12 @@ class CustomInterceptor extends Interceptor {
   // 2. 응답 받을 때 (정상적인 동작이 들어왔을 때만 동작)
   @override
   void onResponse(Response response, ResponseInterceptorHandler handler) {
-    print("[RES] [${response.requestOptions.method}] ${response.requestOptions.uri}");
+    print(
+        "[RES] [${response.requestOptions.method}] ${response.requestOptions.uri}");
 
     return super.onResponse(response, handler);
   }
+
   // 3. 에러 났을 때
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
@@ -76,15 +92,12 @@ class CustomInterceptor extends Interceptor {
         // 요청 재전송
         final response = await dio.fetch(options);
         return handler.resolve(response);
-
-      } on DioException catch(e) {
+      } on DioException catch (e) {
         return handler.reject(e);
       }
 
       return handler.reject(err);
     }
-
-
 
     return super.onError(err, handler);
   }
