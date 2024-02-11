@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_restaurant_inflearn/common/model/model_with_id.dart';
 import 'package:flutter_restaurant_inflearn/common/utils/data_utils.dart';
 import 'package:flutter_restaurant_inflearn/restaurant/component/restaurant_card.dart';
 import 'package:json_annotation/json_annotation.dart';
@@ -10,7 +11,7 @@ part 'restaurant_model.g.dart';
 enum RestaurantPriceRange { expensive, medium, cheap }
 
 @JsonSerializable()
-class RestaurantModel {
+class RestaurantModel implements IModelWithId {
   final String id;
   final String name;
   @JsonKey(fromJson: DataUtils.pathToUrl)
